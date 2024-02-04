@@ -1,0 +1,36 @@
+// everything ok (1)
+    // blue light slowly blinking
+    // orange light off
+    // red light off
+
+// temp sensor error (2)
+    // blue light blinking fast
+    // orange light slowly blinking
+    // red light off
+
+// ethernet error (3)
+    // blue light blinking fast
+    // orange light off
+    // red light slowly blinking
+
+// on backup = (4)
+    // blue light off
+    // orange light blinking fast
+    // red light off
+    // big light turned off
+
+// total loss = (5)
+    // blue light off
+    // orange light off
+    // red light blinking fast
+    // big light turned on
+    // turn on buzzer
+
+
+
+//BUTTON:
+// stop quick (500 ms)
+    // just turn off the buzzer for 30 minutes
+
+// stop long (5000 ms)
+    // turn off the buzzer for 12 hours and big light
