@@ -6,7 +6,7 @@
 int state = 1;
 
 // ETHERNET
-byte mac[] = {0xA6, 0x2A, 0xFA, 0xC7, 0x78, 0xC9}; // make it random
+byte mac[] = {0xA6, 0x2A, 0xFA, 0xC7, 0x70, 0xC0}; // make it random
 IPAddress ip(10, 0, 0, 60);
 EthernetServer server(80);
 
@@ -70,10 +70,12 @@ void setup() {
 
     pinMode(stopButton, INPUT_PULLUP);
 
+    //dht
+    dht.begin();
 
+    //ethernet
     Ethernet.begin(mac, ip);
     server.begin();
-    dht.begin();
 
 
     // blink leds and buzz
@@ -98,17 +100,17 @@ void setup() {
 
 
 void loop() {
-    data_process();
-    temp_process();
-    internet_works();
-    server_process();
+    dataProcess();
+    tempProcess();
+    internetWorks();
+    serverProcess();
     blinkLeds();
     checkReset();
     checkStopButton();
 }
 
 
-void data_process() {
+void dataProcess() {
     mainPower = digitalRead(checkMain);
     backupPower = digitalRead(checkBackup);
 
@@ -121,7 +123,7 @@ void data_process() {
     }
 }
 
-void temp_process() {
+void tempProcess() {
     hum = dht.readHumidity();
     temp = dht.readTemperature();
 
@@ -132,7 +134,7 @@ void temp_process() {
     }
 }
 
-void internet_works() {
+void internetWorks() {
     if ((Ethernet.hardwareStatus() == EthernetNoHardware || Ethernet.linkStatus() == LinkOFF) && state <= 3) {
         state = 3;
     } else if (state == 3) {
@@ -140,7 +142,7 @@ void internet_works() {
     }
 }
 
-void server_process() {
+void serverProcess() {
     EthernetClient client = server.available();
     if (client && client.connected() && client.available()) {
         client.println("HTTP/1.1 200 OK");
