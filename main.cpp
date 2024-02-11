@@ -1,3 +1,9 @@
+/*
+    Power Checker by Karel Cermak | Karlosoft.com
+    Licensed under MIT
+*/
+
+
 #include <SPI.h>
 #include <Ethernet.h>
 #include <DHT.h>;
@@ -7,7 +13,7 @@ int state = 1;
 
 // ETHERNET
 byte mac[] = {0xA6, 0x2A, 0xFA, 0xC7, 0x70, 0xC0}; // make it random
-IPAddress ip(10, 0, 0, 60);
+IPAddress ip(10, 0, 0, 60); // set the IP address to whatever you want
 EthernetServer server(80);
 
 
