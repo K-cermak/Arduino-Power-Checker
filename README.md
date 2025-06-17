@@ -4,7 +4,7 @@ By Karel Cermak | [Karlosoft](https://karlosoft.com).
 
 ## A simple arduino project to monitor the functionality of the power grid and the backup power supply.
 
-<img src="Model/Model - Png.png" alt="Model" width="700"/>
+<img src="https://cdn.karlosoft.com/cdn-data/ks/img/powerchecker/github.png" alt="Model" width="700"/>
 
 ---
 
