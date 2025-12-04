@@ -2,18 +2,19 @@
 
 By Karel Cermak | [Karlosoft](https://karlosoft.com).
 
-## A simple arduino project to monitor the functionality of the power grid and the backup power supply.
+## A simple Arduino project to monitor the power supply state in the electrical network and the backup power supply.
 
-<img src="https://cdn.karlosoft.com/cdn-data/ks/img/powerchecker/github.png" alt="Model" width="700"/>
+<img src="https://cdn.karlosoft.com/cdn-data/ks/img/powerchecker/github-project.png" alt="Project" width="700"/>
+<img src="https://cdn.karlosoft.com/cdn-data/ks/img/powerchecker/github-model.png" alt="Model" width="700"/>
 
 ---
 
 ## Features
 - Checks the functionality of the power system and the power supply of the backup power supply via USB.
-- It controls the control diodes responding to the current status.
+- It changes the status LEDs responding to the current status.
 - Controls a buzzer that will be triggered if the backup power supply is disconnected.
 - Generate simple JSON statistics via the integrated web server.
-- DHT temperature sensor and buzzer/ceiling light mute button.
+- DHT temperature sensor and buzzer / ceiling light mute button.
 
 <br>
 
@@ -50,15 +51,15 @@ By Karel Cermak | [Karlosoft](https://karlosoft.com).
 
 ## How to stop the buzzer and the ceiling light?
 
-- **Hold button for 500 ms**
+- **Hold button for 0.5 seconds**
     - Deactivate the buzzer for 30 minutes
 
-- **Hold button for 5000 ms**
+- **Hold button for 5 seconds**
     - Deactivate the buzzer and ceiling light for 12 hours
 
 <br>
 
-## Problem with ethernet shields W5100 
-- If it is necessary to restart the arduino via the restart button to get the web server working, this might help:
+## Known problems with W5100 ethernet shield:
+- If it is necessary to restart the Arduino via the restart button to get the web server working, this might help:
     - Put a 100 nF capacitor between the RESET and GND pins (a larger capacitor should also work).
-    - Place 100 ohm resistors between ethernet pins 1 - 2 and 3 - 6 (not tested).
+    - Place 100 ohm resistors between ethernet pins 1-2 and 3-6 (not tested).
