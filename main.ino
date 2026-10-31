@@ -6,7 +6,7 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
-#include <DHT.h>;
+#include <DHT.h>
 
 // OVERALL
 int state = 1;
@@ -45,10 +45,10 @@ boolean ledStateOrange = true;
 boolean ledStateRed = true;
 
 // TIMES
-unsigned long longOn = 2000;
-unsigned long longOff = 400;
-unsigned long shortOn = 200;
-unsigned long shortOff = 75;
+unsigned long longOn = 400;
+unsigned long longOff = 2000;
+unsigned long shortOn = 75;
+unsigned long shortOff = 200;
 
 // ALARMS
 const byte redLight = 32;
@@ -59,10 +59,9 @@ unsigned long previousMillisBuzzer = 0;
 // STOP BUTTON
 const byte stopButton = 34;
 byte pauseType = 0; // 0 - no pause, 1 - pause alarm, 2 - pause light and alarm
-unsigned long pauseTill = 0;
+unsigned long pauseStart = 0;
+unsigned long pauseDuration = 0;
 
-
-void(* resetFunc) (void) = 0;
 
 void setup() {
     pinMode(checkMain, INPUT);
@@ -111,7 +110,6 @@ void loop() {
     internetWorks();
     serverProcess();
     blinkLeds();
-    checkReset();
     checkStopButton();
 }
 
@@ -150,28 +148,69 @@ void internetWorks() {
 
 void serverProcess() {
     EthernetClient client = server.available();
-    if (client && client.connected() && client.available()) {
-        client.println("HTTP/1.1 200 OK");
-        client.println("Content-Type: application/json");
-        client.println("Connection: close");
-        client.println();
-        client.println("{");
-        client.println("\"state\":\"" + stateToString(state) + "\",");
-        client.println("\"time\":" + String(millis()) + ",");
-        client.println("\"humidity\":" + String(hum) + ",");
-        client.println("\"temperature\":" + String(temp) + ",");
-        client.println("\"mainPower\":" + String(mainPower) + ",");
-        client.println("\"backupPower\":" + String(backupPower) + "}");
-        client.println("}");
+    if (!client) {
+        return;
+    }
 
-        // give the web browser time to receive the data
-        delay(1);
-        client.stop();
+    // read the HTTP request until the blank line that ends the headers
+    boolean currentLineIsBlank = true;
+    unsigned long requestStart = millis();
+    while (client.connected() && millis() - requestStart < 1000) {
+        if (client.available()) {
+            char c = client.read();
+            if (c == '\n' && currentLineIsBlank) {
+                sendResponse(client);
+                break;
+            }
+            if (c == '\n') {
+                currentLineIsBlank = true;
+            } else if (c != '\r') {
+                currentLineIsBlank = false;
+            }
+        }
+    }
+
+    // give the web browser time to receive the data
+    delay(1);
+    client.stop();
+}
+
+void sendResponse(EthernetClient &client) {
+    client.println(F("HTTP/1.1 200 OK"));
+    client.println(F("Content-Type: application/json"));
+    client.println(F("Connection: close"));
+    client.println();
+    client.println(F("{"));
+    client.print(F("\"state\":\""));
+    client.print(stateToString(state));
+    client.println(F("\","));
+    client.print(F("\"time\":"));
+    client.print(millis());
+    client.println(F(","));
+    client.print(F("\"humidity\":"));
+    printJsonFloat(client, hum);
+    client.println(F(","));
+    client.print(F("\"temperature\":"));
+    printJsonFloat(client, temp);
+    client.println(F(","));
+    client.print(F("\"mainPower\":"));
+    client.print(mainPower ? 1 : 0);
+    client.println(F(","));
+    client.print(F("\"backupPower\":"));
+    client.println(backupPower ? 1 : 0);
+    client.println(F("}"));
+}
+
+void printJsonFloat(EthernetClient &client, float value) {
+    if (isnan(value)) {
+        client.print(F("null"));
+    } else {
+        client.print(value);
     }
 }
 
-String stateToString(int state) {
-    switch (state) {
+const char* stateToString(int currentState) {
+    switch (currentState) {
         case 1:
             return "ok";
         case 2:
@@ -195,7 +234,7 @@ void blinkLeds() {
     switch (state) {
         case 1:
             //blue
-            if ((calcBlue >= longOn && !ledStateBlue) || (calcBlue >= longOff && ledStateBlue)) {
+            if ((calcBlue >= longOff && !ledStateBlue) || (calcBlue >= longOn && ledStateBlue)) {
                 previousMillisBlue = millis();
                 ledStateBlue = !ledStateBlue;
                 digitalWrite(ledBlue, getState(ledStateBlue));
@@ -207,14 +246,14 @@ void blinkLeds() {
     
         case 2:
             //blue
-            if ((calcBlue >= shortOn && !ledStateBlue) || (calcBlue >= shortOff && ledStateBlue)) {
+            if ((calcBlue >= shortOff && !ledStateBlue) || (calcBlue >= shortOn && ledStateBlue)) {
                 previousMillisBlue = millis();
                 ledStateBlue = !ledStateBlue;
                 digitalWrite(ledBlue, getState(ledStateBlue));
             }
 
             //orange
-            if ((calcOrange >= longOn && !ledStateOrange) || (calcOrange >= longOff && ledStateOrange)) {
+            if ((calcOrange >= longOff && !ledStateOrange) || (calcOrange >= longOn && ledStateOrange)) {
                 previousMillisOrange = millis();
                 ledStateOrange = !ledStateOrange;
                 digitalWrite(ledOrange, getState(ledStateOrange));
@@ -226,14 +265,14 @@ void blinkLeds() {
 
         case 3:
             //blue
-            if ((calcBlue >= shortOn && !ledStateBlue) || (calcBlue >= shortOff && ledStateBlue)) {
+            if ((calcBlue >= shortOff && !ledStateBlue) || (calcBlue >= shortOn && ledStateBlue)) {
                 previousMillisBlue = millis();
                 ledStateBlue = !ledStateBlue;
                 digitalWrite(ledBlue, getState(ledStateBlue));
             }
 
             //red
-            if ((calcRed >= longOn && !ledStateRed) || (calcRed >= longOff && ledStateRed)) {
+            if ((calcRed >= longOff && !ledStateRed) || (calcRed >= longOn && ledStateRed)) {
                 previousMillisRed = millis();
                 ledStateRed = !ledStateRed;
                 digitalWrite(ledRed, getState(ledStateRed));
@@ -245,7 +284,7 @@ void blinkLeds() {
 
         case 4:
             //orange
-            if ((calcOrange >= shortOn && !ledStateOrange) || (calcOrange >= shortOff && ledStateOrange)) {
+            if ((calcOrange >= shortOff && !ledStateOrange) || (calcOrange >= shortOn && ledStateOrange)) {
                 previousMillisOrange = millis();
                 ledStateOrange = !ledStateOrange;
                 digitalWrite(ledBlue, LOW);
@@ -257,7 +296,7 @@ void blinkLeds() {
 
         case 5:
             //red
-            if ((calcRed >= shortOn && !ledStateRed) || (calcRed >= shortOff && ledStateRed)) {
+            if ((calcRed >= shortOff && !ledStateRed) || (calcRed >= shortOn && ledStateRed)) {
                 previousMillisRed = millis();
                 ledStateRed = !ledStateRed;
                 digitalWrite(ledBlue, LOW);
@@ -290,15 +329,15 @@ void blinkLeds() {
 
 }
 
-int getState(boolean state) {
-    if (state) {
+int getState(boolean on) {
+    if (on) {
         return 1;
     }
     return 0;
 }
 
 void checkStopButton() {
-    if (pauseTill < millis()) {
+    if (pauseType != 0 && millis() - pauseStart >= pauseDuration) {
         pauseType = 0;
     }
 
@@ -311,19 +350,13 @@ void checkStopButton() {
 
     if (millis() - buttonStart > 5000 && pauseType != 2) {
         pauseType = 2;
-        pauseTill = millis() + (12 * 60 * 60 * 1000L);
+        pauseStart = millis();
+        pauseDuration = 12UL * 60 * 60 * 1000;
         digitalWrite(buzzer, LOW);
     } else if (millis() - buttonStart > 500 && pauseType == 0) {
         pauseType = 1;
-        pauseTill = millis() + (30 * 60 * 1000L);
+        pauseStart = millis();
+        pauseDuration = 30UL * 60 * 1000;
         digitalWrite(buzzer, LOW);
-    }
-}
-
-
-void checkReset() {
-    // reset after 45 days of running
-    if (millis() > 4000000000L) {
-        resetFunc();
     }
 }
