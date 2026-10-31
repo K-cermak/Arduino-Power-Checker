@@ -2,7 +2,7 @@
 
 By Karel Cermak | [Karlosoft](https://karlosoft.com).
 
-## A simple Arduino project to monitor the power supply state in the electrical network and the backup power supply.
+## A simple Arduino project that monitors the state of the mains power supply and the backup power supply.
 
 <img src="https://cdn.karlosoft.com/cdn-data/ks/img/powerchecker/github-project.png" alt="Project" width="700"/>
 <img src="https://cdn.karlosoft.com/cdn-data/ks/img/powerchecker/github-model.png" alt="Model" width="700"/>
@@ -10,56 +10,56 @@ By Karel Cermak | [Karlosoft](https://karlosoft.com).
 ---
 
 ## Features
-- Checks the functionality of the power system and the power supply of the backup power supply via USB.
-- It changes the status LEDs responding to the current status.
-- Controls a buzzer that will be triggered if the backup power supply is disconnected.
-- Generate simple JSON statistics via the integrated web server.
-- DHT temperature sensor and buzzer / ceiling light mute button.
+- Monitors the mains power supply and the backup power supply (via USB).
+- Indicates the current state with status LEDs.
+- Sounds a buzzer when the backup power supply is disconnected.
+- Serves simple JSON statistics through a built-in web server.
+- Includes a DHT22 temperature and humidity sensor and a button to mute the buzzer and the ceiling light.
 
 <br>
 
-## States of the system
-- **Everything ok (1)**
-    - Blue light slowly blinking
-    - Orange light off
-    - Red light off
+## System states
+- **Everything OK (1)**
+    - Blue LED blinking slowly
+    - Orange LED off
+    - Red LED off
 
-- **DHT temperature sensor error (2)**
-    - Blue light blinking fast
-    - Orange light slowly blinking
-    - Red light off
+- **DHT sensor error (2)**
+    - Blue LED blinking fast
+    - Orange LED blinking slowly
+    - Red LED off
 
 - **Ethernet error (3)**
-    - Blue light blinking fast
-    - Orange light off
-    - Red light slowly blinking
+    - Blue LED blinking fast
+    - Orange LED off
+    - Red LED blinking slowly
 
-- **Main grid off (4)**
-    - Blue light off
-    - Orange light blinking fast
-    - Red light off
-    - Ceiling light turned off
+- **Mains power off (4)**
+    - Blue LED off
+    - Orange LED blinking fast
+    - Red LED off
+    - Ceiling light off
 
-- **Backup power supply off (5)**
-    - Blue light off
-    - Orange light off
-    - Red light blinking fast
-    - Ceiling light turned on
-    - Buzzer activated
-
-<br>
-
-## How to stop the buzzer and the ceiling light?
-
-- **Hold button for 0.5 seconds**
-    - Deactivate the buzzer for 30 minutes
-
-- **Hold button for 5 seconds**
-    - Deactivate the buzzer and ceiling light for 12 hours
+- **Backup power off (5)**
+    - Blue LED off
+    - Orange LED off
+    - Red LED blinking fast
+    - Ceiling light on
+    - Buzzer on
 
 <br>
 
-## Known problems with W5100 ethernet shield:
-- If it is necessary to restart the Arduino via the restart button to get the web server working, this might help:
-    - Put a 100 nF capacitor between the RESET and GND pins (a larger capacitor should also work).
-    - Place 100 ohm resistors between ethernet pins 1-2 and 3-6 (not tested).
+## How to silence the buzzer and the ceiling light
+
+- **Hold the button for 0.5 seconds**
+    - Mutes the buzzer for 30 minutes.
+
+- **Hold the button for 5 seconds**
+    - Mutes the buzzer and turns off the ceiling light for 12 hours.
+
+<br>
+
+## Known issues with the W5100 Ethernet shield
+- If the web server only starts working after you press the Arduino's reset button, the following may help:
+    - Connect a 100 nF capacitor between the RESET and GND pins (a larger capacitor should also work).
+    - Connect 100 Ω resistors between Ethernet pins 1–2 and 3–6 (untested).

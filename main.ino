@@ -1,6 +1,6 @@
 /*
     Power Checker by Karel Cermak | Karlosoft.com
-    Licensed under MIT
+    Licensed under the MIT License
 */
 
 
@@ -12,8 +12,8 @@
 int state = 1;
 
 // ETHERNET
-byte mac[] = {0xA6, 0x2A, 0xFA, 0xC7, 0x70, 0xC0}; // make it random
-IPAddress ip(10, 0, 0, 60); // set the IP address to whatever you want
+byte mac[] = {0xA6, 0x2A, 0xFA, 0xC7, 0x70, 0xC0}; // replace with your own random MAC address
+IPAddress ip(10, 0, 0, 60); // set to a free IP address on your network
 EthernetServer server(80);
 
 
